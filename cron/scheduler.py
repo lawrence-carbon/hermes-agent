@@ -102,6 +102,7 @@ def _deliver_result(job: dict, content: str) -> None:
         "discord": Platform.DISCORD,
         "slack": Platform.SLACK,
         "whatsapp": Platform.WHATSAPP,
+        "googlechat": Platform.GOOGLECHAT,
         "signal": Platform.SIGNAL,
         "email": Platform.EMAIL,
     }

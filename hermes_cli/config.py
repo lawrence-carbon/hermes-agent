@@ -265,7 +265,7 @@ DEFAULT_CONFIG = {
     },
 
     # Config schema version - bump this when adding new required fields
-    "_config_version": 7,
+    "_config_version": 8,
 }
 
 # =============================================================================
@@ -279,6 +279,12 @@ ENV_VARS_BY_VERSION: Dict[int, List[str]] = {
     4: ["VOICE_TOOLS_OPENAI_KEY", "ELEVENLABS_API_KEY"],
     5: ["WHATSAPP_ENABLED", "WHATSAPP_MODE", "WHATSAPP_ALLOWED_USERS",
         "SLACK_BOT_TOKEN", "SLACK_APP_TOKEN", "SLACK_ALLOWED_USERS"],
+    8: [
+        "GOOGLECHAT_SERVICE_ACCOUNT",
+        "GOOGLECHAT_SPACES",
+        "GOOGLECHAT_ALLOWED_USERS",
+        "GOOGLECHAT_HOME_CHANNEL",
+    ],
 }
 
 # Required environment variables with metadata for migration prompts.
@@ -523,6 +529,34 @@ OPTIONAL_ENV_VARS = {
         "prompt": "Slack App Token (xapp-...)",
         "url": "https://api.slack.com/apps",
         "password": True,
+        "category": "messaging",
+    },
+    "GOOGLECHAT_SERVICE_ACCOUNT": {
+        "description": "Google Chat service account JSON (inline) or file path",
+        "prompt": "Google Chat service account (JSON or file path)",
+        "url": "https://console.cloud.google.com/apis/library/googlechat.googleapis.com",
+        "password": True,
+        "category": "messaging",
+    },
+    "GOOGLECHAT_SPACES": {
+        "description": "Comma-separated Google Chat spaces to poll for incoming messages",
+        "prompt": "Google Chat spaces (comma-separated)",
+        "url": None,
+        "password": False,
+        "category": "messaging",
+    },
+    "GOOGLECHAT_ALLOWED_USERS": {
+        "description": "Comma-separated Google Chat user resource IDs allowed to use the bot",
+        "prompt": "Allowed Google Chat users (comma-separated, e.g. users/12345)",
+        "url": None,
+        "password": False,
+        "category": "messaging",
+    },
+    "GOOGLECHAT_HOME_CHANNEL": {
+        "description": "Default Google Chat space for proactive delivery",
+        "prompt": "Google Chat home channel (spaces/...)",
+        "url": None,
+        "password": False,
         "category": "messaging",
     },
     "GATEWAY_ALLOW_ALL_USERS": {
@@ -1238,9 +1272,11 @@ def show_config():
     
     telegram_token = get_env_value('TELEGRAM_BOT_TOKEN')
     discord_token = get_env_value('DISCORD_BOT_TOKEN')
+    googlechat_token = get_env_value('GOOGLECHAT_SERVICE_ACCOUNT')
     
     print(f"  Telegram:     {'configured' if telegram_token else color('not configured', Colors.DIM)}")
     print(f"  Discord:      {'configured' if discord_token else color('not configured', Colors.DIM)}")
+    print(f"  Google Chat:  {'configured' if googlechat_token else color('not configured', Colors.DIM)}")
     
     print()
     print(color("─" * 60, Colors.DIM))
@@ -1288,6 +1324,7 @@ def set_config_value(key: str, value: str):
         'FAL_KEY', 'TELEGRAM_BOT_TOKEN', 'DISCORD_BOT_TOKEN',
         'TERMINAL_SSH_HOST', 'TERMINAL_SSH_USER', 'TERMINAL_SSH_KEY',
         'SUDO_PASSWORD', 'SLACK_BOT_TOKEN', 'SLACK_APP_TOKEN',
+        'GOOGLECHAT_SERVICE_ACCOUNT',
         'GITHUB_TOKEN', 'HONCHO_API_KEY', 'WANDB_API_KEY',
         'TINKER_API_KEY',
     ]

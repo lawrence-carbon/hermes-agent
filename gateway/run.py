@@ -593,6 +593,7 @@ class GatewayRunner:
             os.getenv(v)
             for v in ("TELEGRAM_ALLOWED_USERS", "DISCORD_ALLOWED_USERS",
                        "WHATSAPP_ALLOWED_USERS", "SLACK_ALLOWED_USERS",
+                       "GOOGLECHAT_ALLOWED_USERS",
                        "GATEWAY_ALLOWED_USERS")
         )
         _allow_all = os.getenv("GATEWAY_ALLOW_ALL_USERS", "").lower() in ("true", "1", "yes")
@@ -779,6 +780,13 @@ class GatewayRunner:
                 return None
             return SlackAdapter(config)
 
+        elif platform == Platform.GOOGLECHAT:
+            from gateway.platforms.google_chat import GoogleChatAdapter, check_googlechat_requirements
+            if not check_googlechat_requirements():
+                logger.warning("Google Chat: httpx + PyJWT[crypto] not installed")
+                return None
+            return GoogleChatAdapter(config)
+
         elif platform == Platform.SIGNAL:
             from gateway.platforms.signal import SignalAdapter, check_signal_requirements
             if not check_signal_requirements():
@@ -828,6 +836,7 @@ class GatewayRunner:
             Platform.DISCORD: "DISCORD_ALLOWED_USERS",
             Platform.WHATSAPP: "WHATSAPP_ALLOWED_USERS",
             Platform.SLACK: "SLACK_ALLOWED_USERS",
+            Platform.GOOGLECHAT: "GOOGLECHAT_ALLOWED_USERS",
             Platform.SIGNAL: "SIGNAL_ALLOWED_USERS",
             Platform.EMAIL: "EMAIL_ALLOWED_USERS",
         }
@@ -836,6 +845,7 @@ class GatewayRunner:
             Platform.DISCORD: "DISCORD_ALLOW_ALL_USERS",
             Platform.WHATSAPP: "WHATSAPP_ALLOW_ALL_USERS",
             Platform.SLACK: "SLACK_ALLOW_ALL_USERS",
+            Platform.GOOGLECHAT: "GOOGLECHAT_ALLOW_ALL_USERS",
             Platform.SIGNAL: "SIGNAL_ALLOW_ALL_USERS",
             Platform.EMAIL: "EMAIL_ALLOW_ALL_USERS",
         }
@@ -2166,6 +2176,7 @@ class GatewayRunner:
                 Platform.DISCORD: "hermes-discord",
                 Platform.WHATSAPP: "hermes-whatsapp",
                 Platform.SLACK: "hermes-slack",
+                Platform.GOOGLECHAT: "hermes-googlechat",
                 Platform.SIGNAL: "hermes-signal",
                 Platform.HOMEASSISTANT: "hermes-homeassistant",
                 Platform.EMAIL: "hermes-email",
@@ -2187,6 +2198,7 @@ class GatewayRunner:
                 Platform.DISCORD: "discord",
                 Platform.WHATSAPP: "whatsapp",
                 Platform.SLACK: "slack",
+                Platform.GOOGLECHAT: "googlechat",
                 Platform.SIGNAL: "signal",
                 Platform.HOMEASSISTANT: "homeassistant",
                 Platform.EMAIL: "email",
@@ -3068,6 +3080,7 @@ class GatewayRunner:
             Platform.DISCORD: "hermes-discord",
             Platform.WHATSAPP: "hermes-whatsapp",
             Platform.SLACK: "hermes-slack",
+            Platform.GOOGLECHAT: "hermes-googlechat",
             Platform.SIGNAL: "hermes-signal",
             Platform.HOMEASSISTANT: "hermes-homeassistant",
             Platform.EMAIL: "hermes-email",
@@ -3092,6 +3105,7 @@ class GatewayRunner:
             Platform.DISCORD: "discord",
             Platform.WHATSAPP: "whatsapp",
             Platform.SLACK: "slack",
+            Platform.GOOGLECHAT: "googlechat",
             Platform.SIGNAL: "signal",
             Platform.HOMEASSISTANT: "homeassistant",
             Platform.EMAIL: "email",

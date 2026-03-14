@@ -21,6 +21,14 @@ def _make_config():
     ), telegram_cfg
 
 
+def _make_googlechat_config():
+    googlechat_cfg = SimpleNamespace(enabled=True, token="/tmp/fake-sa.json", extra={})
+    return SimpleNamespace(
+        platforms={Platform.GOOGLECHAT: googlechat_cfg},
+        get_home_channel=lambda _platform: None,
+    ), googlechat_cfg
+
+
 class TestSendMessageTool:
     def test_sends_to_explicit_telegram_topic_target(self):
         config, telegram_cfg = _make_config()
@@ -42,6 +50,61 @@ class TestSendMessageTool:
 
         assert result["success"] is True
         send_mock.assert_awaited_once_with(Platform.TELEGRAM, telegram_cfg, "-1001", "hello", thread_id="17585")
+
+    def test_sends_to_explicit_googlechat_space_target(self):
+        config, googlechat_cfg = _make_googlechat_config()
+
+        with patch("gateway.config.load_gateway_config", return_value=config), \
+             patch("tools.interrupt.is_interrupted", return_value=False), \
+             patch("model_tools._run_async", side_effect=_run_async_immediately), \
+             patch("tools.send_message_tool._send_to_platform", new=AsyncMock(return_value={"success": True})) as send_mock, \
+             patch("gateway.mirror.mirror_to_session", return_value=True):
+            result = json.loads(
+                send_message_tool(
+                    {
+                        "action": "send",
+                        "target": "googlechat:spaces/AAAA111",
+                        "message": "hello",
+                    }
+                )
+            )
+
+        assert result["success"] is True
+        send_mock.assert_awaited_once_with(
+            Platform.GOOGLECHAT,
+            googlechat_cfg,
+            "spaces/AAAA111",
+            "hello",
+            thread_id=None,
+        )
+
+    def test_googlechat_composite_target_preserves_thread_id(self):
+        config, googlechat_cfg = _make_googlechat_config()
+
+        with patch("gateway.config.load_gateway_config", return_value=config), \
+             patch("tools.interrupt.is_interrupted", return_value=False), \
+             patch("gateway.channel_directory.resolve_channel_name", return_value="spaces/AAAA111:spaces/AAAA111/threads/thread-1"), \
+             patch("model_tools._run_async", side_effect=_run_async_immediately), \
+             patch("tools.send_message_tool._send_to_platform", new=AsyncMock(return_value={"success": True})) as send_mock, \
+             patch("gateway.mirror.mirror_to_session", return_value=True):
+            result = json.loads(
+                send_message_tool(
+                    {
+                        "action": "send",
+                        "target": "googlechat:Team Room / thread-1",
+                        "message": "hello",
+                    }
+                )
+            )
+
+        assert result["success"] is True
+        send_mock.assert_awaited_once_with(
+            Platform.GOOGLECHAT,
+            googlechat_cfg,
+            "spaces/AAAA111",
+            "hello",
+            thread_id="spaces/AAAA111/threads/thread-1",
+        )
         mirror_mock.assert_called_once_with("telegram", "-1001", "hello", source_label="cli", thread_id="17585")
 
     def test_resolved_telegram_topic_name_preserves_thread_id(self):

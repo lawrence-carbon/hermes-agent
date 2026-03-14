@@ -117,6 +117,15 @@ All variables go in `~/.hermes/.env`. You can also set them with `hermes config 
 | `SLACK_ALLOWED_USERS` | Comma-separated Slack user IDs |
 | `SLACK_HOME_CHANNEL` | Default Slack channel for cron delivery |
 | `SLACK_HOME_CHANNEL_NAME` | Display name for the Slack home channel |
+| `GOOGLECHAT_SERVICE_ACCOUNT` | Google Chat service account JSON (inline) or JSON file path |
+| `GOOGLECHAT_SERVICE_ACCOUNT_FILE` | Alias for service account JSON file path |
+| `GOOGLECHAT_SPACES` | Comma-separated Google Chat spaces to poll (`spaces/...`) |
+| `GOOGLECHAT_ALLOWED_USERS` | Comma-separated Google Chat user IDs (resource form like `users/123`) |
+| `GOOGLECHAT_HOME_CHANNEL` | Default Google Chat space for cron/send_message delivery |
+| `GOOGLECHAT_HOME_CHANNEL_NAME` | Display name for the Google Chat home space |
+| `GOOGLECHAT_POLL_INTERVAL` | Poll interval in seconds for inbound Google Chat messages |
+| `GOOGLECHAT_HTTP_TIMEOUT` | HTTP timeout in seconds for Google Chat API calls |
+| `GOOGLECHAT_ALLOW_ALL_USERS` | Allow all Google Chat users without allowlist |
 | `WHATSAPP_ENABLED` | Enable the WhatsApp bridge (`true`/`false`) |
 | `WHATSAPP_MODE` | `bot` (separate number) or `self-chat` (message yourself) |
 | `WHATSAPP_ALLOWED_USERS` | Comma-separated phone numbers (with country code, no `+`) |

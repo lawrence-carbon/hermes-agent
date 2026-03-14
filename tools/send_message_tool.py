@@ -1,7 +1,7 @@
 """Send Message Tool -- cross-channel messaging via platform APIs.
 
 Sends a message to a user or channel on any connected messaging platform
-(Telegram, Discord, Slack). Supports listing available targets and resolving
+(Telegram, Discord, Slack, Google Chat). Supports listing available targets and resolving
 human-friendly channel names to IDs. Works in both CLI and gateway contexts.
 """
 
@@ -36,7 +36,7 @@ SEND_MESSAGE_SCHEMA = {
             },
             "target": {
                 "type": "string",
-                "description": "Delivery target. Format: 'platform' (uses home channel), 'platform:#channel-name', 'platform:chat_id', or Telegram topic 'telegram:chat_id:thread_id'. Examples: 'telegram', 'telegram:-1001234567890:17585', 'discord:#bot-home', 'slack:#engineering', 'signal:+15551234567'"
+                "description": "Delivery target. Format: 'platform' (uses home channel), 'platform:#channel-name', 'platform:chat_id', or Telegram topic 'telegram:chat_id:thread_id'. Examples: 'telegram', 'telegram:-1001234567890:17585', 'discord:#bot-home', 'slack:#engineering', 'signal:+15551234567', 'googlechat:spaces/AAAA12345'"
             },
             "message": {
                 "type": "string",
@@ -118,6 +118,7 @@ def _handle_send(args):
         "discord": Platform.DISCORD,
         "slack": Platform.SLACK,
         "whatsapp": Platform.WHATSAPP,
+        "googlechat": Platform.GOOGLECHAT,
         "signal": Platform.SIGNAL,
         "email": Platform.EMAIL,
     }
@@ -170,6 +171,15 @@ def _parse_target_ref(platform_name: str, target_ref: str):
         match = _TELEGRAM_TOPIC_TARGET_RE.fullmatch(target_ref)
         if match:
             return match.group(1), match.group(2), True
+    if platform_name == "googlechat" and target_ref.startswith("spaces/"):
+        if ":" in target_ref:
+            space_part, thread_part = target_ref.split(":", 1)
+            if thread_part.startswith("spaces/") and "/threads/" in thread_part:
+                return space_part, thread_part, True
+        if "/threads/" in target_ref:
+            chat_id = target_ref.split("/threads/", 1)[0]
+            return chat_id, target_ref, True
+        return target_ref, None, True
     if target_ref.lstrip("-").isdigit():
         return target_ref, None, True
     return None, None, False
@@ -184,6 +194,8 @@ async def _send_to_platform(platform, pconfig, chat_id, message, thread_id=None)
         return await _send_discord(pconfig.token, chat_id, message)
     elif platform == Platform.SLACK:
         return await _send_slack(pconfig.token, chat_id, message)
+    elif platform == Platform.GOOGLECHAT:
+        return await _send_googlechat(pconfig, chat_id, message, thread_id=thread_id)
     elif platform == Platform.SIGNAL:
         return await _send_signal(pconfig.extra, chat_id, message)
     elif platform == Platform.EMAIL:
@@ -284,6 +296,30 @@ async def _send_signal(extra, chat_id, message):
             return {"success": True, "platform": "signal", "chat_id": chat_id}
     except Exception as e:
         return {"error": f"Signal send failed: {e}"}
+
+
+async def _send_googlechat(pconfig, chat_id, message, thread_id=None):
+    """Send via Google Chat API using service account credentials."""
+    service_account_source = (
+        (getattr(pconfig, "token", "") or "").strip()
+        or os.getenv("GOOGLECHAT_SERVICE_ACCOUNT", "").strip()
+        or os.getenv("GOOGLECHAT_SERVICE_ACCOUNT_FILE", "").strip()
+    )
+    if not service_account_source:
+        return {
+            "error": (
+                "Google Chat not configured. Set GOOGLECHAT_SERVICE_ACCOUNT "
+                "to a JSON blob or file path."
+            )
+        }
+
+    from gateway.platforms.google_chat import send_googlechat_message_once
+    return await send_googlechat_message_once(
+        service_account_source=service_account_source,
+        chat_id=chat_id,
+        content=message,
+        thread_id=thread_id,
+    )
 
 
 async def _send_email(extra, chat_id, message):
