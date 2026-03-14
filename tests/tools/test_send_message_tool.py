@@ -50,6 +50,7 @@ class TestSendMessageTool:
 
         assert result["success"] is True
         send_mock.assert_awaited_once_with(Platform.TELEGRAM, telegram_cfg, "-1001", "hello", thread_id="17585")
+        mirror_mock.assert_called_once_with("telegram", "-1001", "hello", source_label="cli", thread_id="17585")
 
     def test_sends_to_explicit_googlechat_space_target(self):
         config, googlechat_cfg = _make_googlechat_config()
@@ -105,7 +106,6 @@ class TestSendMessageTool:
             "hello",
             thread_id="spaces/AAAA111/threads/thread-1",
         )
-        mirror_mock.assert_called_once_with("telegram", "-1001", "hello", source_label="cli", thread_id="17585")
 
     def test_resolved_telegram_topic_name_preserves_thread_id(self):
         config, telegram_cfg = _make_config()
