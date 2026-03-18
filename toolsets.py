@@ -273,6 +273,12 @@ TOOLSETS = {
         "tools": _HERMES_CORE_TOOLS,
         "includes": []
     },
+
+    "hermes-googlechat": {
+        "description": "Google Chat bot toolset - full access for workspace and threaded chats",
+        "tools": _HERMES_CORE_TOOLS,
+        "includes": []
+    },
     
     "hermes-signal": {
         "description": "Signal bot toolset - encrypted messaging platform (full access)",
@@ -295,7 +301,7 @@ TOOLSETS = {
     "hermes-gateway": {
         "description": "Gateway toolset - union of all messaging platform tools",
         "tools": [],
-        "includes": ["hermes-telegram", "hermes-discord", "hermes-whatsapp", "hermes-slack", "hermes-signal", "hermes-homeassistant", "hermes-email"]
+        "includes": ["hermes-telegram", "hermes-discord", "hermes-whatsapp", "hermes-slack", "hermes-googlechat", "hermes-signal", "hermes-homeassistant", "hermes-email"]
     }
 }
 

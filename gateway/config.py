@@ -2,7 +2,7 @@
 Gateway configuration management.
 
 Handles loading and validating configuration for:
-- Connected platforms (Telegram, Discord, WhatsApp)
+- Connected platforms (Telegram, Discord, WhatsApp, Slack, Google Chat, Signal, Email)
 - Home channels for each platform
 - Session reset policies
 - Delivery preferences
@@ -28,6 +28,7 @@ class Platform(Enum):
     DISCORD = "discord"
     WHATSAPP = "whatsapp"
     SLACK = "slack"
+    GOOGLECHAT = "googlechat"
     SIGNAL = "signal"
     HOMEASSISTANT = "homeassistant"
     EMAIL = "email"
@@ -340,6 +341,7 @@ def load_gateway_config() -> GatewayConfig:
         Platform.TELEGRAM: "TELEGRAM_BOT_TOKEN",
         Platform.DISCORD: "DISCORD_BOT_TOKEN",
         Platform.SLACK: "SLACK_BOT_TOKEN",
+        Platform.GOOGLECHAT: "GOOGLECHAT_SERVICE_ACCOUNT",
     }
     for platform, pconfig in config.platforms.items():
         if not pconfig.enabled:
@@ -411,6 +413,31 @@ def _apply_env_overrides(config: GatewayConfig) -> None:
                 platform=Platform.SLACK,
                 chat_id=slack_home,
                 name=os.getenv("SLACK_HOME_CHANNEL_NAME", ""),
+            )
+
+    # Google Chat
+    googlechat_service_account = (
+        os.getenv("GOOGLECHAT_SERVICE_ACCOUNT")
+        or os.getenv("GOOGLECHAT_SERVICE_ACCOUNT_FILE")
+    )
+    if googlechat_service_account:
+        if Platform.GOOGLECHAT not in config.platforms:
+            config.platforms[Platform.GOOGLECHAT] = PlatformConfig()
+        config.platforms[Platform.GOOGLECHAT].enabled = True
+        config.platforms[Platform.GOOGLECHAT].token = googlechat_service_account
+
+        poll_spaces = os.getenv("GOOGLECHAT_SPACES", "")
+        if poll_spaces:
+            config.platforms[Platform.GOOGLECHAT].extra["spaces"] = [
+                s.strip() for s in poll_spaces.split(",") if s.strip()
+            ]
+
+        googlechat_home = os.getenv("GOOGLECHAT_HOME_CHANNEL")
+        if googlechat_home:
+            config.platforms[Platform.GOOGLECHAT].home_channel = HomeChannel(
+                platform=Platform.GOOGLECHAT,
+                chat_id=googlechat_home,
+                name=os.getenv("GOOGLECHAT_HOME_CHANNEL_NAME", "Home"),
             )
     
     # Signal

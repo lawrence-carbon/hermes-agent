@@ -513,6 +513,30 @@ _PLATFORMS = [
         "token_var": "WHATSAPP_ENABLED",
     },
     {
+        "key": "googlechat",
+        "label": "Google Chat",
+        "emoji": "💠",
+        "token_var": "GOOGLECHAT_SERVICE_ACCOUNT",
+        "setup_instructions": [
+            "1. Create/choose a Google Cloud project and enable the Google Chat API",
+            "2. Configure a Google Chat app and add your service account as the app identity",
+            "3. Create a service account key (JSON) and store it securely on this machine",
+            "4. Add the Chat app to the spaces where you want Hermes to listen/respond",
+            "5. Copy the target space resource names (format: spaces/AAAAxxxx)",
+        ],
+        "vars": [
+            {"name": "GOOGLECHAT_SERVICE_ACCOUNT", "prompt": "Service account JSON (inline) OR path to JSON file", "password": True,
+             "help": "Paste raw JSON or a path to the JSON key file (recommended)."},
+            {"name": "GOOGLECHAT_SPACES", "prompt": "Spaces to poll (comma-separated, e.g. spaces/AAAA,spaces/BBBB)", "password": False,
+             "help": "These spaces are polled for incoming user messages."},
+            {"name": "GOOGLECHAT_ALLOWED_USERS", "prompt": "Allowed Google Chat user IDs (comma-separated, optional)", "password": False,
+             "is_allowlist": True,
+             "help": "Use sender IDs like users/123456789. Leave empty to use pairing or global policy."},
+            {"name": "GOOGLECHAT_HOME_CHANNEL", "prompt": "Home space (for cron/notification delivery)", "password": False,
+             "help": "Example: spaces/AAAAxxxx"},
+        ],
+    },
+    {
         "key": "signal",
         "label": "Signal",
         "emoji": "📡",
@@ -584,7 +608,7 @@ def _platform_status(platform: dict) -> str:
 
 
 def _setup_standard_platform(platform: dict):
-    """Interactive setup for Telegram, Discord, or Slack."""
+    """Interactive setup for standard token-based messaging platforms."""
     emoji = platform["emoji"]
     label = platform["label"]
     token_var = platform["token_var"]

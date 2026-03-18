@@ -122,6 +122,13 @@ PLATFORM_HINTS = {
         "attachments, audio as file attachments. You can also include image URLs "
         "in markdown format ![alt](url) and they will be uploaded as attachments."
     ),
+    "googlechat": (
+        "You are in Google Chat communicating with your user. "
+        "Prefer plain text formatting (minimal markdown). "
+        "Replies can stay in a thread when one exists. "
+        "You can send media files by including MEDIA:/absolute/path/to/file "
+        "in your response (platform capabilities may fall back to links/text if unsupported)."
+    ),
     "signal": (
         "You are on a text messaging communication platform, Signal. "
         "Please do not use markdown as it does not render. "

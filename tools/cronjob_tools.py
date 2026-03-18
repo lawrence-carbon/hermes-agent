@@ -102,8 +102,10 @@ def schedule_cronjob(
                  - "local": Save to local files only (~/.hermes/cron/output/)
                  - "telegram": Send to Telegram home channel
                  - "discord": Send to Discord home channel
+                 - "googlechat": Send to Google Chat home space
                  - "signal": Send to Signal home channel
                  - "telegram:123456": Send to specific chat ID
+                 - "googlechat:spaces/AAAAxxxx": Send to specific Google Chat space
                  - "signal:+15551234567": Send to specific Signal number
     
     Returns:
@@ -191,6 +193,7 @@ DELIVERY OPTIONS (where output goes):
 - "local": Save to local files only (default if in CLI)
 - "telegram": Send to Telegram home channel
 - "discord": Send to Discord home channel
+- "googlechat": Send to Google Chat home space
 - "telegram:123456": Send to specific chat (if user provides ID)
 
 NOTE: The agent's final response is auto-delivered to the target — do NOT use
@@ -218,7 +221,7 @@ Use for: reminders, periodic checks, scheduled reports, automated maintenance.""
             },
             "deliver": {
                 "type": "string",
-                "description": "Where to send output: 'origin' (back to this chat), 'local' (files only), 'telegram', 'discord', 'signal', or 'platform:chat_id'"
+                "description": "Where to send output: 'origin' (back to this chat), 'local' (files only), 'telegram', 'discord', 'googlechat', 'signal', or 'platform:chat_id'"
             }
         },
         "required": ["prompt", "schedule"]
