@@ -173,8 +173,16 @@ $GAPI calendar delete EVENT_ID
 
 ```bash
 $GAPI drive search "quarterly report" --max 10
+$GAPI drive search "quarterly report" --corpora user --max 10
+$GAPI drive search "quarterly report" --corpora allDrives --max 10
+$GAPI drive search "quarterly report" --drive-id SHARED_DRIVE_ID --max 10
 $GAPI drive search "mimeType='application/pdf'" --raw-query --max 5
 ```
+
+Notes:
+- Default behavior searches `allDrives` (My Drive + Shared Drives).
+- Use `--drive-id` to target one specific Shared Drive (`corpora=drive`).
+- You can override corpus with `--corpora user|drive|allDrives|domain`.
 
 ### Contacts
 
@@ -210,7 +218,7 @@ All commands return JSON. Parse with `jq` or read directly. Key fields:
 - **Gmail send/reply**: `{status: "sent", id, threadId}`
 - **Calendar list**: `[{id, summary, start, end, location, description, htmlLink}]`
 - **Calendar create**: `{status: "created", id, summary, htmlLink}`
-- **Drive search**: `[{id, name, mimeType, modifiedTime, webViewLink}]`
+- **Drive search**: `[{id, driveId?, name, mimeType, modifiedTime, webViewLink}]`
 - **Contacts list**: `[{name, emails: [...], phones: [...]}]`
 - **Sheets get**: `[[cell, cell, ...], ...]`
 
