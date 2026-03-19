@@ -2,7 +2,7 @@
 
 Renders any content as colored ASCII character video. Audio, video, images, text, or pure math in, MP4/GIF/PNG sequence out. Full RGB color per character cell, 1080p 24fps default. No GPU.
 
-Built for [Hermes Agent](https://github.com/NousResearch/hermes-agent). Usable in any coding agent.
+Built for [Hermes Agent](https://github.com/lawrence-carbon/hermes-agent). Usable in any coding agent.
 
 ## What this is
 

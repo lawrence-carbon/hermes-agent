@@ -19,7 +19,7 @@ _OUTPUT_FENCE = "__HERMES_FENCE_a9f7b3__"
 # Hermes-internal env vars that should NOT leak into terminal subprocesses.
 # These are loaded from ~/.hermes/.env for Hermes' own LLM/provider calls
 # but can break external CLIs (e.g. codex) that also honor them.
-# See: https://github.com/NousResearch/hermes-agent/issues/1002
+# See: https://github.com/lawrence-carbon/hermes-agent/issues/1002
 #
 # Built dynamically from the provider registry so new providers are
 # automatically covered without manual blocklist maintenance.

@@ -11,7 +11,7 @@ body:
         **Quick checks first:**
         - Run `hermes doctor` and include the output below
         - Try `hermes update` to get the latest version
-        - Check the [README troubleshooting section](https://github.com/NousResearch/hermes-agent#troubleshooting)
+        - Check the [README troubleshooting section](https://github.com/lawrence-carbon/hermes-agent#troubleshooting)
         - For general questions, consider the [Nous Research Discord](https://discord.gg/NousResearch) for faster help
 
   - type: textarea
