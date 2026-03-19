@@ -4,7 +4,7 @@ Verifies that Hermes-internal provider env vars (OPENAI_BASE_URL, etc.)
 are stripped from subprocess environments so external CLIs are not
 silently misrouted.
 
-See: https://github.com/NousResearch/hermes-agent/issues/1002
+See: https://github.com/lawrence-carbon/hermes-agent/issues/1002
 """
 
 import os

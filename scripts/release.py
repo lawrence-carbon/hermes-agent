@@ -305,7 +305,7 @@ def get_pr_number(subject: str) -> str:
     return None
 
 
-def generate_changelog(commits, tag_name, semver, repo_url="https://github.com/NousResearch/hermes-agent",
+def generate_changelog(commits, tag_name, semver, repo_url="https://github.com/lawrence-carbon/hermes-agent",
                        prev_tag=None, first_release=False):
     """Generate markdown changelog from categorized commits."""
     lines = []

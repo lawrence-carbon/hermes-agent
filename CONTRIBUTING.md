@@ -63,7 +63,7 @@ If your skill is specialized, community-contributed, or niche, it's better suite
 ### Clone and install
 
 ```bash
-git clone --recurse-submodules https://github.com/NousResearch/hermes-agent.git
+git clone --recurse-submodules https://github.com/lawrence-carbon/hermes-agent.git
 cd hermes-agent
 
 # Create venv with Python 3.11
@@ -638,7 +638,7 @@ test(tools): add unit tests for file_operations
 
 ## Reporting Issues
 
-- Use [GitHub Issues](https://github.com/NousResearch/hermes-agent/issues)
+- Use [GitHub Issues](https://github.com/lawrence-carbon/hermes-agent/issues)
 - Include: OS, Python version, Hermes version (`hermes version`), full error traceback
 - Include steps to reproduce
 - Check existing issues before creating duplicates

@@ -14,7 +14,7 @@ Run the one-line installer:
 
 ```bash
 # Linux / macOS / WSL2
-curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/lawrence-carbon/hermes-agent/main/scripts/install.sh | bash
 ```
 
 :::tip Windows Users
