@@ -6,6 +6,7 @@ description: "Connect Hermes Agent to Google Chat spaces using a service account
 # Google Chat Setup
 
 Hermes supports Google Chat through the gateway using a Google Cloud service account and the Google Chat REST API.
+Unlike Slack/WhatsApp webhook setups, Hermes reads messages by polling configured spaces via API.
 
 ## Requirements
 
@@ -23,10 +24,56 @@ Hermes supports Google Chat through the gateway using a Google Cloud service acc
 
 ## 2) Configure a Google Chat app
 
-1. In Google Cloud Console, open **Google Chat API → Configuration**.
-2. Configure app details (name, avatar, description).
-3. Set interaction behavior appropriate for your workspace.
-4. Ensure your app identity uses a service account.
+Open **Google Cloud Console → Google Chat API → Configuration** and fill these sections:
+
+### A. App details
+
+- Set **App name**, **Avatar URL**, and **Description**.
+- Save.
+
+### B. Interactive features (important)
+
+Turn on **Interactive features** and set:
+
+- **Receive 1:1 messages**: ON
+- **Join spaces and group conversations**: ON (recommended if you want Hermes in spaces)
+
+If you only want direct messages, you can leave group conversations off.
+
+If your Google Cloud Console is in French, these labels map to:
+
+| French UI label | English UI label | Recommended value |
+|-----------------|------------------|-------------------|
+| `Activer les fonctionnalites interactives` | Enable interactive features | ON |
+| `Rejoindre des espaces et des conversations de groupe` | Join spaces and group conversations | ON (for spaces) |
+| `URL du point de terminaison HTTP` | HTTP endpoint URL | Selected |
+| `Utiliser une URL ... commune pour tous les declencheurs` | Use a common HTTP endpoint URL for all triggers | Selected (simplest) |
+
+### C. Connection settings and triggers
+
+In the same configuration page:
+
+1. Under **Connection settings**, select **HTTP endpoint URL**.
+2. Under **Triggers**, easiest option is:
+   - **Use a common HTTP endpoint URL for all triggers**
+3. Enter a valid HTTPS URL that you control.
+
+If your console is set to "separate URL per trigger", fill all three with the same URL:
+
+- **App command**
+- **Added to space**
+- **Message**
+
+:::note Why this is still required
+Google Chat asks for trigger URLs when interactive features are enabled. Hermes does not consume these push events directly; it polls spaces using the Chat API with your service account.  
+Use any stable HTTPS endpoint that returns `200 OK` (for example, a tiny Cloud Run "hello" endpoint).
+:::
+
+### D. App identity and availability
+
+- Ensure the app is configured to run as your chosen app identity/service account in this project.
+- Set visibility/availability so your test users can find and add the app.
+- Publish the app internally in your Workspace as needed by your admin policy.
 
 ## 3) Create service account key
 
@@ -86,6 +133,15 @@ hermes gateway start
 - Send a message in one of the configured spaces.
 - Hermes should respond in-thread when a thread exists.
 - For proactive sends (cron/send_message), test target `googlechat` (home channel) or `googlechat:spaces/AAAAxxxx`.
+
+## Troubleshooting the Configuration screen
+
+| Problem | What to check |
+|---------|---------------|
+| Configuration page requires trigger URLs | Keep **Interactive features** ON, choose **common HTTP endpoint**, and provide one valid HTTPS URL. |
+| Bot can receive DMs but cannot be added to spaces | Enable **Join spaces and group conversations** in Interactive features. |
+| Hermes starts but receives no Google Chat messages | Confirm `GOOGLECHAT_SPACES` contains exact `spaces/...` IDs and the app is added to those spaces. |
+| API auth errors on startup | Verify `GOOGLECHAT_SERVICE_ACCOUNT` points to valid JSON with `client_email` and `private_key`. |
 
 ## Security notes
 
