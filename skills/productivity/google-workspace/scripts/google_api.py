@@ -11,7 +11,8 @@ Usage:
   python google_api.py gmail reply MESSAGE_ID --body "Thanks"
   python google_api.py calendar list [--from DATE] [--to DATE] [--calendar primary]
   python google_api.py calendar create --summary "Meeting" --start DATETIME --end DATETIME
-  python google_api.py drive search "budget report" [--max 10]
+  python google_api.py drive search "budget report" [--max 10] [--corpora allDrives]
+  python google_api.py drive search "budget report" --drive-id SHARED_DRIVE_ID
   python google_api.py contacts list [--max 20]
   python google_api.py sheets get SHEET_ID RANGE
   python google_api.py sheets update SHEET_ID RANGE --values '[[...]]'
@@ -271,11 +272,35 @@ def calendar_delete(args):
 # =========================================================================
 
 def drive_search(args):
+    # Search across both My Drive and Shared Drives by default.
+    corpora = args.corpora or ("drive" if args.drive_id else "allDrives")
+
+    if corpora == "drive" and not args.drive_id:
+        print("Drive search error: --drive-id is required when --corpora=drive", file=sys.stderr)
+        sys.exit(2)
+
+    if args.drive_id and corpora != "drive":
+        print("Drive search error: --drive-id can only be used with --corpora=drive", file=sys.stderr)
+        sys.exit(2)
+
     service = build_service("drive", "v3")
     query = f"fullText contains '{args.query}'" if not args.raw_query else args.query
-    results = service.files().list(
-        q=query, pageSize=args.max, fields="files(id, name, mimeType, modifiedTime, webViewLink)",
-    ).execute()
+
+    list_kwargs = {
+        "q": query,
+        "pageSize": args.max,
+        "fields": "files(id, driveId, name, mimeType, modifiedTime, webViewLink)",
+        "corpora": corpora,
+    }
+
+    if corpora in {"drive", "allDrives"}:
+        list_kwargs["supportsAllDrives"] = True
+        list_kwargs["includeItemsFromAllDrives"] = True
+
+    if args.drive_id:
+        list_kwargs["driveId"] = args.drive_id
+
+    results = service.files().list(**list_kwargs).execute()
     files = results.get("files", [])
     print(json.dumps(files, indent=2, ensure_ascii=False))
 
@@ -439,6 +464,17 @@ def main():
     p.add_argument("query")
     p.add_argument("--max", type=int, default=10)
     p.add_argument("--raw-query", action="store_true", help="Use query as raw Drive API query")
+    p.add_argument(
+        "--corpora",
+        choices=["user", "drive", "allDrives", "domain"],
+        default="",
+        help="Drive corpus to search (default: allDrives; or drive when --drive-id is set)",
+    )
+    p.add_argument(
+        "--drive-id",
+        default="",
+        help="Shared Drive ID to search (implies --corpora drive if --corpora is omitted)",
+    )
     p.set_defaults(func=drive_search)
 
     # --- Contacts ---
